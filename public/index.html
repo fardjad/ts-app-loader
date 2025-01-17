@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width" />
+  <title>Service worker demo</title>
+
+  <script type="importmap">
+      {
+        "imports": {
+          "typescript": "https://esm.sh/typescript@5.7.3",
+          "@typescript/vfs": "https://esm.sh/@typescript/vfs@1.6.0",
+          "mime/": "https://esm.sh/mime@4.0.6/",
+          "preact": "https://esm.sh/preact@10.23.1",
+          "preact/": "https://esm.sh/preact@10.23.1/",
+          "react": "https://esm.sh/preact@10.23.1/compat",
+          "react/": "https://esm.sh/preact@10.23.1/compat/",
+          "react-dom": "https://esm.sh/preact@10.23.1/compat"
+        }
+      }
+    </script>
+</head>
+
+<body>
+  <div id="app">
+    <button id="accessDirButton">Access Directory</button>
+  </div>
+
+  <script type="module">
+    import { accessDirectory } from './load-dir.js'
+
+    if (!navigator.serviceWorker.controller) {
+      const registrations = await navigator.serviceWorker.getRegistrations()
+      await Promise.all(registrations.map(r => r.unregister()))
+    }
+
+    await navigator.serviceWorker
+      .register('./sw.js')
+      .then(() => console.log('Service Worker registered!'))
+      .catch((error) => console.error('Service Worker registration failed:', error));
+
+    document.querySelector('#accessDirButton').addEventListener('click', async () => {
+      await accessDirectory()
+
+      document.querySelector('#accessDirButton').remove()
+
+      const script = document.createElement('script');
+      script.src = '/index.js';
+      script.type = 'module';
+      document.head.appendChild(script);
+    })
+  </script>
+</body>
+
+</html>

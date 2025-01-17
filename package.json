@@ -1,0 +1,13 @@
+{
+  "name": "tsc-service-worker-demo",
+  "private": true,
+  "version": "0.0.0",
+  "author": "Fardjad Davari <public@fardjad.com>",
+  "license": "MIT",
+  "description": "Sample project to demo how to use service workers to compile TypeScript files in the browser",
+  "dependencies": {
+    "htm": "^3.1.1",
+    "preact": "^10.25.4",
+    "typescript": "^5.7.3"
+  }
+}
