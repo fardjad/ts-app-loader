@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light dark" />
+  <title>Preact</title>
+
+  <link rel="stylesheet" href="/style.css">
+
+  <!-- We can't use a module script when adding the importmap dynamically -->
+  <script>
+    (async () => {
+      const importMapScript = document.createElement('script');
+      importMapScript.type = 'importmap';
+      importMapScript.textContent = await fetch("/import_map.json").then((res) => res.text());
+      document.head.appendChild(importMapScript);
+
+      const indexScript = document.createElement('script');
+      indexScript.type = 'module';
+      indexScript.src = '/index.js';
+      indexScript.defer = true;
+      document.body.appendChild(indexScript);
+    })()
+  </script>
+</head>
+
+<body>
+  <div id="app"></div>
+</body>
+
+</html>

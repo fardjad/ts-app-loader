@@ -22,6 +22,7 @@ const compilerOptions = {
 	inlineSources: true,
 	lib: ["es2022", "dom", "dom.iterable"],
 	jsx: ts.JsxEmit.ReactJSX,
+	jsxImportSource: "preact",
 };
 
 let fsMap = await tsvfs.createDefaultMapFromCDN(
@@ -62,11 +63,13 @@ fsMap = new Proxy(fsMap, tsLibFixer);
 
 const readDirectoryRecursively = async (dirHandle, path) => {
 	for await (const [name, handle] of dirHandle.entries()) {
+		const filePath = `${path}/${name}`;
+
 		if (handle.kind === "file") {
 			const file = await handle.getFile();
-			fsMap.set(`${path}/${name}`, await file.text());
+			fsMap.set(filePath, await file.text());
 		} else if (handle.kind === "directory") {
-			await readDirectoryRecursively(handle, `${path}/${name}`);
+			await readDirectoryRecursively(handle, filePath);
 		}
 	}
 

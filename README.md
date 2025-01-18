@@ -18,5 +18,6 @@ service worker, which intercepts and handles requests seamlessly.
 
 ## Running the Demo Project
 
-Start a local server and open the [loader application](./public/) in a browser,
-then open [`./src`](./src/) in the loader application.
+Start a local server and open the [loader application](./public/) in a supported
+browser (any Chromium based browser should work), then open
+[`example-apps/preact`](./example-apps/preact/) in the loader application.
