@@ -1,8 +1,9 @@
-import ts from "typescript";
 import * as tsvfs from "@typescript/vfs";
 import { Mime } from "mime/lite";
-import standardTypes from "mime/types/standard.js";
 import otherTypes from "mime/types/other.js";
+import standardTypes from "mime/types/standard.js";
+import ts from "typescript";
+import zip from "zip";
 
 const CACHE_NAME = "tsvfs";
 
@@ -65,7 +66,7 @@ const createFsMap = async () => {
 	return new Proxy(fsMap, tsLibFixer);
 };
 
-const loadDirectory = async (dirHandle) => {
+export const loadDirectory = async (dirHandle) => {
 	const fsMap = await createFsMap();
 
 	const _loadDirectory = async (dirHandle, path) => {
@@ -86,8 +87,24 @@ const loadDirectory = async (dirHandle) => {
 	return fsMap;
 };
 
-export const buildProject = async (dirHandle) => {
-	const fsMap = await loadDirectory(dirHandle);
+export async function loadZip(zipFile) {
+	const fsMap = await createFsMap();
+	const zipReader = new zip.ZipReader(new zip.BlobReader(zipFile));
+	const entries = await zipReader.getEntries();
+	for (const entry of entries) {
+		if (!entry.directory) {
+			const text = await entry.getData(new zip.TextWriter());
+			const fileNameWithSlash = entry.filename.startsWith("/")
+				? entry.filename
+				: `/${entry.filename}`;
+			fsMap.set(fileNameWithSlash, text);
+		}
+	}
+	await zipReader.close();
+	return fsMap;
+}
+
+export const buildProject = async (fsMap) => {
 	const system = tsvfs.createSystem(fsMap);
 	const host = tsvfs.createVirtualCompilerHost(system, tsCompilerOptions, ts);
 
@@ -99,6 +116,12 @@ export const buildProject = async (dirHandle) => {
 
 	program.emit();
 	return fsMap;
+};
+
+const createResponse = (fileName, contents) => {
+	return new Response(contents, {
+		headers: { "Content-Type": mime.getType(fileName) },
+	});
 };
 
 export const populateCache = async (fsMap) => {
@@ -114,21 +137,21 @@ export const populateCache = async (fsMap) => {
 
 	for (const fileName of fsMap.keys()) {
 		const contents = fsMap.get(fileName);
-		const response = new Response(contents, {
-			headers: { "Content-Type": mime.getType(fileName) },
-		});
-		await cache.put(fileName, response);
+		await cache.put(fileName, createResponse(fileName, contents));
+		if (fileName === "/index.html") {
+			await cache.put("/", createResponse(fileName, contents));
+		}
 	}
 };
 
-export const registerServiceWorker = async () => {
+export const registerServiceWorker = async (path) => {
 	if (!navigator.serviceWorker.controller) {
 		const registrations = await navigator.serviceWorker.getRegistrations();
 		await Promise.all(registrations.map((r) => r.unregister()));
 	}
 
 	await navigator.serviceWorker
-		.register("./sw.js")
+		.register(path)
 		.then(() => console.log("Service Worker registered!"))
 		.catch((error) =>
 			console.error("Service Worker registration failed:", error),

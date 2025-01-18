@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light dark" />
+  <title>TypeScript WebApp Loader</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <script type="importmap">
+    {
+      "imports": {
+        "typescript": "https://esm.sh/typescript@5.7.3",
+        "@typescript/vfs": "https://esm.sh/@typescript/vfs@1.6.0",
+        "mime/": "https://esm.sh/mime@4.0.6/",
+        "zip": "https://esm.sh/@zip.js/zip.js@2.7.54/dist/zip-full.min"
+      }
+    }
+  </script>
+</head>
+
+<body>
+  <div id="content-container">
+    <h1>TypeScript WebApp Loader</h1>
+
+    <p>
+      TypeScript WebApp Loader lets you run web applications directly in your
+      browser <em>locally</em>, without the need to set up a server or build
+      the project first.
+    </p>
+
+    <p>
+      Simply load a directory (on supported browsers) or open a zip file, and
+      TypeScript WebApp Loader will automatically compile the TypeScript files
+      in your project and load the <code>index.html</code> file from the root
+      directory. To go back to the loader, hard refresh the page
+      (<code>Ctrl + F5</code> or <code>Cmd + Shift + R</code>) or clear the
+      site data in the browser settings.
+    </p>
+
+    <p>
+      Check out the source code and contribute to the project on
+      <a href="https://github.com/fardjad/ts-app-loader">GitHub</a>.
+    </p>
+
+    <div id="action-container"></div>
+  </div>
+
+  <script type="module">
+    import { loadZip, loadDirectory, buildProject, populateCache, registerServiceWorker } from './loader.js'
+
+    const actionContainer = document.getElementById('action-container');
+
+    if (window.showDirectoryPicker) {
+      const loadDirectoryButton = document.createElement('button');
+      loadDirectoryButton.textContent = 'Load Directory';
+      actionContainer.appendChild(loadDirectoryButton);
+
+      loadDirectoryButton.addEventListener('click', async () => {
+        const dirHandle = await window.showDirectoryPicker();
+        await loadDirectory(dirHandle)
+          .then(buildProject)
+          .then(populateCache);
+
+        window.location.href = "/";
+      });
+    } else {
+      const zipInput = document.createElement('input');
+      zipInput.type = 'file';
+      zipInput.accept = '.zip';
+      actionContainer.appendChild(zipInput);
+
+      zipInput.addEventListener('change', async (event) => {
+        const file = event.target.files[0];
+        if (!file) {
+          return;
+        }
+
+        await loadZip(file)
+          .then(buildProject)
+          .then(populateCache);
+
+        window.location.href = "/";
+      });
+    }
+
+    await registerServiceWorker("/ts-app-loader-sw.js");
+  </script>
+</body>
+
+</html>

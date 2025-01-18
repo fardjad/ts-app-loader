@@ -1,3 +1,5 @@
+// This file must be at the root of the public directory(?)
+
 const CACHE_NAME = "tsvfs";
 
 self.addEventListener("install", (event) => {

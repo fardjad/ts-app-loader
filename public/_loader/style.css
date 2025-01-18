@@ -1,0 +1,93 @@
+:root {
+	font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+	line-height: 1.6;
+	font-weight: 400;
+	color: #222;
+	background-color: #ffffff;
+	font-synthesis: none;
+	text-rendering: optimizeLegibility;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	-webkit-text-size-adjust: 100%;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		color: #ccc;
+		background-color: #1a1a1a;
+	}
+}
+
+body {
+	margin: 0;
+	padding: 1.5rem;
+}
+
+#content-container {
+	max-width: 720px;
+	margin: 0 auto;
+}
+
+h1 {
+	font-size: 2rem;
+	font-weight: 600;
+	color: #673ab8;
+	margin-bottom: 1rem;
+}
+
+p {
+	margin: 0.5rem 0;
+	font-size: 1rem;
+}
+
+em {
+	font-style: italic;
+	color: #ff5722;
+}
+
+code {
+	font-family: "Courier New", Courier, monospace;
+	background: rgba(0, 0, 0, 0.05);
+	padding: 0.2rem 0.4rem;
+	border-radius: 4px;
+}
+
+@media (prefers-color-scheme: dark) {
+	code {
+		background: rgba(255, 255, 255, 0.1);
+	}
+}
+
+#action-container {
+	margin-top: 1rem;
+}
+
+#action-container > button {
+	padding: 0.6rem 1.2rem;
+	font-size: 1rem;
+	font-weight: 500;
+	color: #ffffff;
+	background-color: #673ab8;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	transition: background-color 0.2s ease-in-out;
+}
+
+#action-container > button:hover {
+	background-color: #542f94;
+}
+
+@media (max-width: 639px) {
+	body {
+		padding: 1rem;
+	}
+
+	h1 {
+		font-size: 1.75rem;
+	}
+
+	p {
+		font-size: 0.9rem;
+	}
+}
