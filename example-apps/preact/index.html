@@ -9,8 +9,9 @@
 
   <link rel="stylesheet" href="/style.css">
 
-  <!-- We can't use a module script when adding the importmap dynamically -->
   <script>
+    // Top-level await is only available in modules. We need to load the 
+    // import map before using any modules
     (async () => {
       const importMapScript = document.createElement('script');
       importMapScript.type = 'importmap';

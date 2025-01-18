@@ -1,3 +1,5 @@
+const CACHE_NAME = "tsvfs";
+
 self.addEventListener("install", (event) => {
 	console.log("Service Worker installing...");
 	self.skipWaiting();
@@ -11,7 +13,7 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
 	return event.respondWith(
 		(async () => {
-			const cache = await caches.open("tsvfs");
+			const cache = await caches.open(CACHE_NAME);
 			const { pathname: fileName } = new URL(event.request.url);
 			const match = await cache.match(fileName);
 			if (match) {

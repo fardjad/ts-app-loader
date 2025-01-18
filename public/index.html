@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="color-scheme" content="light dark" />
-  <title>Loader</title>
+  <title>TypeScript WebApp Loader</title>
 
   <script type="importmap">
       {
@@ -24,22 +24,17 @@
   </div>
 
   <script type="module">
-    import { accessDirectory } from './load-dir.js'
-
-    if (!navigator.serviceWorker.controller) {
-      const registrations = await navigator.serviceWorker.getRegistrations()
-      await Promise.all(registrations.map(r => r.unregister()))
-    }
-
-    await navigator.serviceWorker
-      .register('./sw.js')
-      .then(() => console.log('Service Worker registered!'))
-      .catch((error) => console.error('Service Worker registration failed:', error));
+    import { buildProject, populateCache, registerServiceWorker } from './loader.js'
 
     document.querySelector('#accessDirButton').addEventListener('click', async () => {
-      await accessDirectory()
+      const dirHandle = await window.showDirectoryPicker();
+      const fsMap = await buildProject(dirHandle);
+      await populateCache(fsMap);
+
       window.location.href = "/index.html"
-    })
+    });
+
+    await registerServiceWorker();
   </script>
 </body>
 
