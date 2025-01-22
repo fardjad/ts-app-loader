@@ -28,6 +28,15 @@ const tsCompilerOptions = {
 	jsx: ts.JsxEmit.ReactJSX,
 };
 
+const decodeToTextOrByteArray = (byteArray) => {
+	try {
+		const decoder = new TextDecoder("utf-8", { fatal: true });
+		return decoder.decode(byteArray);
+	} catch (e) {
+		return byteArray;
+	}
+};
+
 const createFsMap = async () => {
 	const fsMap = await tsvfs.createDefaultMapFromCDN(
 		tsCompilerOptions,
@@ -75,7 +84,8 @@ export const loadDirectory = async (dirHandle) => {
 
 			if (handle.kind === "file") {
 				const file = await handle.getFile();
-				fsMap.set(filePath, await file.text());
+				const byteArray = await file.arrayBuffer();
+				fsMap.set(filePath, await decodeToTextOrByteArray(byteArray));
 			} else if (handle.kind === "directory") {
 				await _loadDirectory(handle, filePath);
 			}
@@ -93,11 +103,14 @@ export async function loadZip(zipFile) {
 	const entries = await zipReader.getEntries();
 	for (const entry of entries) {
 		if (!entry.directory) {
-			const text = await entry.getData(new zip.TextWriter());
+			const data = await entry.getData(new zip.BlobWriter());
+			const arrayBuffer = await data.arrayBuffer();
+
 			const fileNameWithSlash = entry.filename.startsWith("/")
 				? entry.filename
 				: `/${entry.filename}`;
-			fsMap.set(fileNameWithSlash, text);
+
+			fsMap.set(fileNameWithSlash, await decodeToTextOrByteArray(arrayBuffer));
 		}
 	}
 	await zipReader.close();
