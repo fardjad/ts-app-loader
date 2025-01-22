@@ -97,7 +97,7 @@ export const loadDirectory = async (dirHandle) => {
 	return fsMap;
 };
 
-export async function loadZip(zipFile) {
+export const loadZip = async (zipFile) => {
 	const fsMap = await createFsMap();
 	const zipReader = new zip.ZipReader(new zip.BlobReader(zipFile));
 	const entries = await zipReader.getEntries();
@@ -110,12 +110,17 @@ export async function loadZip(zipFile) {
 				? entry.filename
 				: `/${entry.filename}`;
 
+			// Ignore macOS resource fork files
+			if (fileNameWithSlash.startsWith("/__MACOSX/")) {
+				continue;
+			}
+
 			fsMap.set(fileNameWithSlash, await decodeToTextOrByteArray(arrayBuffer));
 		}
 	}
 	await zipReader.close();
 	return fsMap;
-}
+};
 
 export const buildProject = async (fsMap) => {
 	const system = tsvfs.createSystem(fsMap);
